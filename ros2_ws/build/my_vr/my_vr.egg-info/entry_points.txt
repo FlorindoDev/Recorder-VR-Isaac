@@ -1,0 +1,4 @@
+[console_scripts]
+pub.py = my_vr.pub:main
+sub.py = my_vr.sub:main
+
