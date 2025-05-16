@@ -1,103 +1,94 @@
-"""
-ROS2 Humble node to read OpenVR controller data and publish it on a topic.
+#!/usr/bin/env python3
 
-This node initializes the OpenVR runtime, queries all tracked devices,
-filters for controllers, reads their joystick axes and trigger values,
-and publishes these values as Float32MultiArray on `/openvr/controller`.
-"""
-import rclpy  # ROS 2 client library
-from rclpy.node import Node  # Base class for ROS 2 nodes
-from std_msgs.msg import Float32MultiArray  # Message type for multi-dimensional float array
-
-# OpenVR Python bindings; install via `pip install openvr` or `pip install pyopenvr`
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import PoseStamped
 import openvr
+from std_msgs.msg import Float32
 
-
-def get_controller_states(vr_system):
-    """
-    Query all tracked devices and return a list of controller states.
-
-    Each entry is a tuple: (device_index, axis_x, axis_y, trigger_value).
-    """
-    states = []
-    # Iterate over maximum possible tracked devices
-    for device_index in range(openvr.k_unMaxTrackedDeviceCount):
-        # Determine the type of the tracked device
-        device_class = vr_system.getTrackedDeviceClass(device_index)
-        # We're only interested in controller devices
-        if device_class == openvr.TrackedDeviceClass_Controller:
-            # Retrieve controller state (buttons, axes, etc.)
-            got_state, state = vr_system.getControllerState(device_index)
-            if got_state:
-                # Axis 0 is typically the thumbstick or touchpad: (x,y)
-                axis_x = state.rAxis[0].x
-                axis_y = state.rAxis[0].y
-                # Axis 1 is often the trigger analog value
-                trigger = state.rAxis[1].x
-                # Append tuple of controller index and values
-                states.append((device_index, axis_x, axis_y, trigger))
-    return states
-
-
-class OpenVRPublisher(Node):
-    """
-    ROS 2 node that publishes OpenVR controller data at a fixed rate.
-    """
+class VRControllerPublisher(Node):
     def __init__(self):
-        super().__init__('openvr_publisher')
-        # Create publisher: topic name, message type, queue size
-        self.pub = self.create_publisher(Float32MultiArray, 'openvr/controller', 10)
-
-        # Initialize OpenVR runtime in an application context
+        super().__init__('vr_controller_publisher')
+        # Publisher for controller pose
+        self.publisher_ = self.create_publisher(PoseStamped, 'vr/controller_pose', 10)
+        self.trigger_pub_ = self.create_publisher(Float32, 'vr/trigger_pressure', 10)
+        # Initialize OpenVR
         openvr.init(openvr.VRApplication_Other)
-        # Obtain the VRSystem interface for querying devices
-        self.vr_system = openvr.VRSystem()
+        self.vrsystem = openvr.VRSystem()
+        # Choose left or right controller; here we use right hand
+        self.controller_index = self._find_controller_index(openvr.TrackedControllerRole_RightHand)
+        self.timer = self.create_timer(0.02, self.timer_callback)  # 50 Hz
+        self.get_logger().info(f"Publishing VR controller poses on 'vr/controller_pose'. Controller index: {self.controller_index}")
 
-        # Setup a timer to call `timer_callback` every 0.1 seconds
-        self.timer = self.create_timer(0.1, self.timer_callback)
-        self.get_logger().info('OpenVRPublisher initialized, publishing every 0.1s')
+    def _find_controller_index(self, role):
+        # Iterate through tracked devices to find the controller
+        for i in range(openvr.k_unMaxTrackedDeviceCount):
+            if self.vrsystem.getTrackedDeviceClass(i) == openvr.TrackedDeviceClass_Controller:
+                if self.vrsystem.getControllerRoleForTrackedDeviceIndex(i) == role:
+                    return i
+        self.get_logger().warn('Controller not found; defaulting to index 0')
+        return 0
 
     def timer_callback(self):
-        """
-        Callback that runs on a timer to read controller states and publish them.
-        """
-        # Create the multi-array message
-        msg = Float32MultiArray()
-        data = []
+        # Get pose
+        poses = self.vrsystem.getDeviceToAbsoluteTrackingPose(
+            openvr.TrackingUniverseStanding,
+            0,
+            openvr.k_unMaxTrackedDeviceCount)
 
-        # Retrieve latest controller states
-        states = get_controller_states(self.vr_system)
-        for idx, x, y, trig in states:
-            # Flatten each tuple into the data array
-            data.extend([float(idx), x, y, trig])
-
-        msg.data = data
-        self.pub.publish(msg)
-        self.get_logger().debug(f'Published controller data: {data}')
+        pose = poses[self.controller_index]
+    
+        result, state = self.vrsystem.getControllerState(self.controller_index)
+        if result:
+            # di solito l’asse 1 è il grilletto, ma verifica col tuo hardware
+            trigger_value = state.rAxis[2].x
+        else:
+            self.get_logger().warn('Impossibile leggere lo stato del controller')
+            trigger_value = 0.0
+        
+        if pose.bPoseIsValid:
+            msg = PoseStamped()
+            msg.header.stamp = self.get_clock().now().to_msg()
+            msg.header.frame_id = 'vr_space'
+            # Extract position
+            mat = pose.mDeviceToAbsoluteTracking
+            msg.pose.position.x = mat[0][3]
+            msg.pose.position.y = mat[1][3]
+            msg.pose.position.z = mat[2][3]
+            # Extract orientation (quaternion)
+            # mDeviceToAbsoluteTracking is a 3x4, so need full 3x4->4x4
+            # But OpenVR docs give 3x4 matrix, so compute quaternion manually
+            qw = (1 + mat[0][0] + mat[1][1] + mat[2][2]) ** 0.5 / 2
+            qx = (mat[2][1] - mat[1][2]) / (4 * qw)
+            qy = (mat[0][2] - mat[2][0]) / (4 * qw)
+            qz = (mat[1][0] - mat[0][1]) / (4 * qw)
+            msg.pose.orientation.x = qx
+            msg.pose.orientation.y = qy
+            msg.pose.orientation.z = qz
+            msg.pose.orientation.w = qw
+            self.publisher_.publish(msg)
+        else:
+            self.get_logger().warn('Pose not valid; skipping publish')
+        
+        trigger_msg = Float32()
+        trigger_msg.data = trigger_value
+        self.trigger_pub_.publish(trigger_msg)
 
     def destroy_node(self):
-        """
-        Clean up the OpenVR runtime on node shutdown.
-        """
         openvr.shutdown()
         super().destroy_node()
 
 
 def main(args=None):
-    # Initialize ROS 2
     rclpy.init(args=args)
-    node = OpenVRPublisher()
-
+    node = VRControllerPublisher()
     try:
-        # Spin to keep the node alive and processing callbacks
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info('Keyboard interrupt received, shutting down')
-
-    # Cleanly destroy the node and shutdown ROS 2
-    node.destroy_node()
-    rclpy.shutdown()
-
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

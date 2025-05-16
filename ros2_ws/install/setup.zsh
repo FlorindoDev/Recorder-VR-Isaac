@@ -17,14 +17,6 @@ _colcon_prefix_chain_zsh_source_script() {
   fi
 }
 
-<<<<<<< HEAD
-# source chained prefixes
-# setting COLCON_CURRENT_PREFIX avoids determining the prefix in the sourced script
-COLCON_CURRENT_PREFIX="/opt/ros/humble"
-_colcon_prefix_chain_zsh_source_script "$COLCON_CURRENT_PREFIX/local_setup.zsh"
-
-=======
->>>>>>> 903023e6f78a475125e0bf4e4761b450df5de727
 # source this prefix
 # setting COLCON_CURRENT_PREFIX avoids determining the prefix in the sourced script
 COLCON_CURRENT_PREFIX="$(builtin cd -q "`dirname "${(%):-%N}"`" > /dev/null && pwd)"
