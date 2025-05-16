@@ -1,0 +1,24 @@
+[0.242s] Invoking command in '/root/ros2_ws/my_prova': PYTHONPATH=/root/ros2_ws/build/my_prova/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/root/ros2_ws/install/my_prova/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/my_prova build --build-base /root/ros2_ws/build/my_prova/build install --record /root/ros2_ws/build/my_prova/install.log --single-version-externally-managed install_data
+[0.336s] running egg_info
+[0.336s] writing ../build/my_prova/my_prova.egg-info/PKG-INFO
+[0.336s] writing dependency_links to ../build/my_prova/my_prova.egg-info/dependency_links.txt
+[0.336s] writing entry points to ../build/my_prova/my_prova.egg-info/entry_points.txt
+[0.336s] writing requirements to ../build/my_prova/my_prova.egg-info/requires.txt
+[0.336s] writing top-level names to ../build/my_prova/my_prova.egg-info/top_level.txt
+[0.337s] reading manifest file '../build/my_prova/my_prova.egg-info/SOURCES.txt'
+[0.337s] adding license file 'LICENSE'
+[0.338s] writing manifest file '../build/my_prova/my_prova.egg-info/SOURCES.txt'
+[0.338s] running build
+[0.338s] running build_py
+[0.338s] running install
+[0.338s] running install_lib
+[0.339s] running install_data
+[0.339s] copying launch/launch.py -> /root/ros2_ws/install/my_prova/share/my_prova/launch
+[0.339s] running install_egg_info
+[0.339s] removing '/root/ros2_ws/install/my_prova/lib/python3.10/site-packages/my_prova-0.0.0-py3.10.egg-info' (and everything under it)
+[0.340s] Copying ../build/my_prova/my_prova.egg-info to /root/ros2_ws/install/my_prova/lib/python3.10/site-packages/my_prova-0.0.0-py3.10.egg-info
+[0.340s] running install_scripts
+[0.350s] Installing listener script to /root/ros2_ws/install/my_prova/lib/my_prova
+[0.350s] Installing talker script to /root/ros2_ws/install/my_prova/lib/my_prova
+[0.350s] writing list of installed files to '/root/ros2_ws/build/my_prova/install.log'
+[0.360s] Invoked command in '/root/ros2_ws/my_prova' returned '0': PYTHONPATH=/root/ros2_ws/build/my_prova/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/root/ros2_ws/install/my_prova/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/my_prova build --build-base /root/ros2_ws/build/my_prova/build install --record /root/ros2_ws/build/my_prova/install.log --single-version-externally-managed install_data

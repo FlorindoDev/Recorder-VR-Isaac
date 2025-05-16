@@ -1,0 +1,36 @@
+services:
+  ros2:
+    build: . 
+    container_name: ros2_humble_amd
+    network_mode: host
+    ipc: host
+    # modalità privilegiata per l'accesso ai device AMD
+    privileged: true
+    # mappatura dei device hardware AMD
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+      - /dev/amdgpu:/dev/amdgpu
+    environment:
+      - DISPLAY=${DISPLAY}
+      - ROS_DOMAIN_ID=0
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      # variabili ROCm per abilitare il GPU pass-through
+      - HSA_OVERRIDE_GFX_VERSION=11.0.0      # es. RDNA 3; adattare se serve
+      - HIP_VISIBLE_DEVICES=all
+      - PYTHONPATH=/opt/ros/humble/lib/python3.10/site-packages
+      #- OPENVR_RUNTIME=/home/steam/steamvr
+      #- VR_LOG_PATH=/home/steam/steamvr/logs
+      #- OPENVR_CONFIG_PATH=/root/.config/openvr/openvrpaths.vrpath
+      #- XDG_RUNTIME_DIR=/run/user/1000 
+
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/shm:/dev/shm
+      - ./ros2_ws:/root/ros2_ws
+      #- ~/.config/openvr/openvrpaths.vrpath:/root/.config/openvr/openvrpaths.vrpath:ro
+      #- ~/.local/share/Steam/steamapps/common/SteamVR:/home/steam/steamvr:ro
+      #- /run/user/1000:/run/user/1000
+    tty: true
+    stdin_open: true
+    

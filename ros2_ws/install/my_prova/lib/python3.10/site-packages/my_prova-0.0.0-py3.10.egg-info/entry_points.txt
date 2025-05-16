@@ -1,0 +1,4 @@
+[console_scripts]
+listener = my_prova.subscriber_member_function:main
+talker = my_prova.publisher_member_function:main
+
