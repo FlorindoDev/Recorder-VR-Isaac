@@ -19,6 +19,8 @@ RUN apt-get update && \
 
 
 RUN pip install openvr
+
+RUN pip install visual-kinematics
   
   
 RUN useradd -m steam

@@ -39,11 +39,12 @@ class VRControllerPublisher(Node):
         pose = poses[self.controller_index]
     
         result, state = self.vrsystem.getControllerState(self.controller_index)
+        
         if result:
             # di solito l’asse 1 è il grilletto, ma verifica col tuo hardware
             trigger_value = state.rAxis[2].x
         else:
-            self.get_logger().warn('Impossibile leggere lo stato del controller')
+            self.get_logger().warn(f'${state} qui ${result}')
             trigger_value = 0.0
         
         if pose.bPoseIsValid:
