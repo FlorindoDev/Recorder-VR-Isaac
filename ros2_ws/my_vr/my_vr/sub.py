@@ -42,13 +42,32 @@ def cinematic(x,y,z):
         print("Valori dei giunti:", robot.axis_values)
 
         # 7. Esportazione dei dati in CSV
-        joint_positions = [robot.axis_values.tolist()]
-        with open('joint_positions.csv', mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7'])  # Intestazioni
-            writer.writerows(joint_positions)
+        joint_positions = robot.axis_values.tolist()
+         # CSV file setup
+        log_dir = os.path.expanduser('~/Rec')
+        os.makedirs(log_dir, exist_ok=True)
+        csv_filename = os.path.join(log_dir, 'joint_position.csv')
+
+        first_run = not os.path.exists(csv_filename)
+        csv_file = open(csv_filename, 'a', newline='')
+        csv_writer = csv.writer(csv_file)
+
+        if first_run:
+            # write header only once (without timestamp)
+            csv_writer.writerow([
+                'J1', 'J2', 'J3',
+                'J4', 'J5', 'J6', 'J7'
+            ])
+            csv_file.flush()
+        
+        csv_writer.writerow([
+            f"{joint_positions[0]}", f"{joint_positions[1]}", f"{joint_positions[2]}", f"{joint_positions[3]}", f"{joint_positions[4]}", f"{joint_positions[5]}", f"{joint_positions[6]}"
+        ])
+        return True
+
     else:
         print("La posizione desiderata non è raggiungibile.")
+        return False
 
 
 class VRDataLogger(Node):
@@ -103,12 +122,12 @@ class VRDataLogger(Node):
         )
 
         # write row without timestamp
-        #cinematic(p.x,p.y,p.z)
-        self.csv_writer.writerow([
-            f"{p.x:.6f}", f"{p.y:.6f}", f"{p.z:.6f}",
-            f"{o.x:.6f}", f"{o.y:.6f}", f"{o.z:.6f}", f"{o.w:.6f}",
-            f"{grip:.6f}"
-        ])
+        if(cinematic(p.x,p.y,p.z)):
+            self.csv_writer.writerow([
+                f"{p.x:.6f}", f"{p.y:.6f}", f"{p.z:.6f}",
+                f"{o.x:.6f}", f"{o.y:.6f}", f"{o.z:.6f}", f"{o.w:.6f}",
+                f"{grip:.6f}"
+            ])
         self.csv_file.flush()
 
     def destroy_node(self):

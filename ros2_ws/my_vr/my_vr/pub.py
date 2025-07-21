@@ -32,7 +32,7 @@ class VRControllerPublisher(Node):
     def timer_callback(self):
         # Get pose
         poses = self.vrsystem.getDeviceToAbsoluteTrackingPose(
-            openvr.TrackingUniverseStanding,
+            openvr.TrackingUniverseSeated,
             0,
             openvr.k_unMaxTrackedDeviceCount)
 
