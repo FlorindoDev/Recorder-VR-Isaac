@@ -28,6 +28,7 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev/shm:/dev/shm
       - ./ros2_ws:/root/ros2_ws
+      - ./ros2_ws_isaac:/root/ros2_ws_isaac
       #- ~/.config/openvr/openvrpaths.vrpath:/root/.config/openvr/openvrpaths.vrpath:ro
       #- ~/.local/share/Steam/steamapps/common/SteamVR:/home/steam/steamvr:ro
       #- /run/user/1000:/run/user/1000
