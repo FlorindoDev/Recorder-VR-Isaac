@@ -30,7 +30,7 @@ def cinematic(x,y,z,o):
     # 3. Definizione della posa desiderata dell'end-effector
     xyz = np.array([[x], [y], [z]])  # Posizione in metri
     r = R.from_quat([o.x, o.y, o.z, o.w])
-    abc = r.as_euler('xyz') # Orientamento in radianti (ZYX)
+    abc = r.as_euler('xyz') # Orientamento in radianti (XYZ)
 
     # 4. Creazione del frame desiderato
     end = Frame.from_euler_3(abc, xyz)
