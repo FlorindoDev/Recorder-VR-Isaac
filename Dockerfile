@@ -21,6 +21,9 @@ RUN apt-get update && \
 RUN pip install openvr
 
 RUN pip install visual-kinematics
+
+RUN pip install roboticstoolbox-python spatialmath-python scipy
+
   
   
 RUN useradd -m steam

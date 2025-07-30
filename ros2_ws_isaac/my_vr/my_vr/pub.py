@@ -46,7 +46,7 @@ class VRControllerPublisher(Node):
                 # di solito l’asse 1 è il grilletto, ma verifica col tuo hardware
                 trigger_value = state.rAxis[2].x
             else:
-                self.get_logger().warn(f'${state} qui ${result}')
+                #self.get_logger().warn(f'${state} qui ${result}')
                 trigger_value = 0.0
             
             if pose.bPoseIsValid:

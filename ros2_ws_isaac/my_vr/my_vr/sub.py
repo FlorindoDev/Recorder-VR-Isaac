@@ -9,42 +9,44 @@ import numpy as np
 from visual_kinematics.RobotSerial import RobotSerial
 from visual_kinematics.Frame import Frame
 from scipy.spatial.transform import Rotation as R
+from roboticstoolbox import DHRobot, RevoluteDH
+from spatialmath import SE3
 
+
+def kuka_iiwa_model():
+    # Definizione dei parametri DH approssimati per KUKA LBR iiwa 7 R800
+    links = [
+        RevoluteDH(d=0.34, a=0, alpha=-np.pi/2),
+        RevoluteDH(d=0,    a=0, alpha=np.pi/2),
+        RevoluteDH(d=0.4,  a=0, alpha=-np.pi/2),
+        RevoluteDH(d=0,    a=0, alpha=np.pi/2),
+        RevoluteDH(d=0.4,  a=0, alpha=-np.pi/2),
+        RevoluteDH(d=0,    a=0, alpha=np.pi/2),
+        RevoluteDH(d=0.126,a=0, alpha=0),
+    ]
+    robot = DHRobot(links, name='KUKA_LBR_iiwa')
+    return robot
 
 def cinematic(x,y,z,o):
 
-    # 1. Definizione dei parametri DH per il KUKA LBR iiwa 7 R800
-    dh_params = np.array([
-        [0.34, 0., -np.pi / 2, 0.],
-        [0., 0.,  np.pi / 2, 0.],
-        [0.4, 0., -np.pi / 2, 0.],
-        [0., 0.,  np.pi / 2, 0.],
-        [0.4, 0., -np.pi / 2, 0.],
-        [0., 0.,  np.pi / 2, 0.],
-        [0.126, 0., 0., 0.]
-    ])
+    # 1. Crea modello robot
+    robot = kuka_iiwa_model()
 
-    # 2. Creazione del robot
-    robot = RobotSerial(dh_params)
+    # 2. Costruisci matrice di rotazione dal quaternione
+    rotation_matrix = R.from_quat([o.x, o.y, o.z, o.w]).as_matrix()
+    
+    # 3. Costruisci SE3 (pose desiderata)
+    T_target = SE3.Rt(rotation_matrix, [x, y, z])
 
-    # 3. Definizione della posa desiderata dell'end-effector
-    xyz = np.array([[x], [y], [z]])  # Posizione in metri
-    r = R.from_quat([o.x, o.y, o.z, o.w])
-    abc = r.as_euler('xyz') # Orientamento in radianti (XYZ)
-
-    # 4. Creazione del frame desiderato
-    end = Frame.from_euler_3(abc, xyz)
-
-    # 5. Calcolo della cinematica inversa
-    robot.inverse(end)
+    # 4. Calcolo IK numerico (Levenberg-Marquardt)
+    sol = robot.ikine_LM(T_target)  # puoi anche provare .ikine_min()
 
     # 6. Verifica se la soluzione è raggiungibile
-    if robot.is_reachable_inverse:
-        print("Soluzione trovata:")
-        print("Valori dei giunti:", robot.axis_values)
+    if sol.success:
+      
 
         # 7. Esportazione dei dati in CSV
-        joint_positions = robot.axis_values.tolist()
+        joint_positions = sol.q
          # CSV file setup
         log_dir = os.path.expanduser('~/Rec')
         os.makedirs(log_dir, exist_ok=True)
@@ -134,6 +136,8 @@ class VRDataLogger(Node):
                 f"{o.x:.6f}", f"{o.y:.6f}", f"{o.z:.6f}", f"{o.w:.6f}",
                 f"{grip:.6f}"
             ])
+        else:
+            self.get_logger().info("La posizione desiderata non è raggiungibile.")
         self.csv_file.flush()
 
     def destroy_node(self):
