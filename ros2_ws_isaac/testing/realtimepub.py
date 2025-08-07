@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
+from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32
 from message_filters import Subscriber, ApproximateTimeSynchronizer
 import csv
@@ -37,6 +38,7 @@ def transform_input(x_in, y_in, z_in):
         z_robot = y_in          # Isaac Z → visore Y
         return x_robot, y_robot, z_robot
 
+
 def transform_orientation(quat):
     # Quaternione → matrice
     r = R.from_quat([quat.x, quat.y, quat.z, quat.w])
@@ -50,10 +52,20 @@ def transform_orientation(quat):
         [0, -1,  0]
     ])
     
+    # Matrice di trasformazione aggiornata:
+    # X_robot = -X_vr (inverte destra/sinistra)
+    # Y_robot =  Z_vr
+    # Z_robot = -Y_vr
+    #R_convert = np.array([
+    #	[1,  0,  0],
+    #	[0,  0, -1],
+    #	[0,  1,  0]
+    #])
+
     # Applica cambio di base
     R_robot = R_convert @ R_vr
     
-    # 3. Ruota attorno a Z (robot) di 180° per correggere destra/sinistra
+     # 3. Ruota attorno a Z (robot) di 180° per correggere destra/sinistra
     R_fix = R.from_euler('z', 180, degrees=True).as_matrix()
     R_final = R_fix @ R_robot
 
@@ -76,17 +88,22 @@ def kuka_iiwa_model_DH():
     return robot
 
 def kuka_iiwa_model_URDF():
-    robot = ERobot.URDF("/home/flo/Scrivania/Recorder-VR-Isaac/ros2_ws_isaac/my_vr/resource/lbr_iiwa7_r800.urdf")
+    robot = ERobot.URDF("/home/francesco/Desktop/tirocinio/ros2_ws/urdf/urdf/lbr_iiwa7_r800.urdf")
     return robot
     
 
-def cinematic(self,x,y,z,quat_robot):
+def cinematic(self,x,y,z,o):
 
     # 1. Crea modello robot
     robot = kuka_iiwa_model_URDF()
 
-    # 2. Costruisci matrice di rotazione dal quaternione 
+    # 2. Costruisci matrice di rotazione dal quaternione e normalizza
+    #quat = np.array([o.x, o.y, o.z, o.w])
+    #quat = quat / np.linalg.norm(quat)
+    #rotation_matrix = R.from_quat(quat).as_matrix()
+    quat_robot = transform_orientation(o)
     rotation_matrix = R.from_quat(quat_robot).as_matrix()
+
     
     # 3. Costruisci SE3 (pose desiderata)
     T_target = SE3.Rt(rotation_matrix, [x, y, z])
@@ -103,10 +120,24 @@ def cinematic(self,x,y,z,quat_robot):
         # 7. Esportazione dei dati in CSV
         joint_positions = sol.q
 
-        self.csv_writer_joint.writerow([
-            f"{joint_positions[0]}", f"{joint_positions[1]}", f"{joint_positions[2]}", f"{joint_positions[3]}", f"{joint_positions[4]}", f"{joint_positions[5]}", f"{joint_positions[6]}"
-        ])
+        self.joint_msg = JointState()
+        self.joint_msg.header.stamp = self.get_clock().now().to_msg()
+        self.joint_msg.name = [
+            'joint1', 'joint2', 'joint3',
+            'joint4', 'joint5', 'joint6', 'joint7'
+        ]
+        self.joint_msg.position = [float(j) for j in joint_positions]
 
+        
+        self.get_logger().info(
+            f"Joint values: {', '.join([f'{j:.3f}' for j in joint_positions])}"
+        )
+        
+        T = robot.fkine(joint_positions)
+        
+        xyz_result = T.t  # oppure T.t.tolist() se vuoi in forma di lista
+        self.get_logger().info(f"Posizione effettiva (FK): {xyz_result}")
+        
         return True
 
     else:
@@ -146,6 +177,7 @@ class VRDataLogger(Node):
         # message_filters subscribers
         pose_sub = Subscriber(self, PoseStamped, 'vr/controller_pose')
         grip_sub = Subscriber(self, Float32, 'vr/trigger_pressure')
+        self.publisher_ = self.create_publisher(JointState, '/joint_command', 10)
 
         # Synchronize by header timestamp / arrival time (allow headerless)
         sync = ApproximateTimeSynchronizer(
@@ -168,26 +200,25 @@ class VRDataLogger(Node):
 
         # log to console without timestamp
         self.get_logger().info(
-            f"--VR--"
             f"pos=({p.x:.3f},{p.y:.3f},{p.z:.3f}) | "
             f"ori=({o.x:.3f},{o.y:.3f},{o.z:.3f},{o.w:.3f}) | grip={grip:.3f}"
         )
 
         x,y,z = transform_input(p.x,p.y,p.z)
-        quat_robot = transform_orientation(o)
         # write row without timestamp
-        if(cinematic(self, x,y,z,quat_robot)):
+        if(cinematic(self, x,y,z ,o)):
             self.csv_writer_vr.writerow([
-                f"{x:.6f}", f"{y:.6f}", f"{z:.6f}",
-                f"{quat_robot[0]:.6f}", f"{quat_robot[1]:.6f}", f"{quat_robot[2]:.6f}", f"{quat_robot[3]:.6f}",
+                f"{p.x:.6f}", f"{p.y:.6f}", f"{p.z:.6f}",
+                f"{o.x:.6f}", f"{o.y:.6f}", f"{o.z:.6f}", f"{o.w:.6f}",
                 f"{grip:.6f}"
             ])
-
-            self.get_logger().info(
-                f"--ISAAC--"
-                f"pos=({x:.3f},{y:.3f},{z:.3f}) | "
-                f"ori=({quat_robot[0]:.3f},{quat_robot[1]:.3f},{quat_robot[2]:.3f},{quat_robot[3]:.3f}) | grip={grip:.3f}"
-            )
+            
+            self.joint_msg.name.append("left_inner_finger_joint")
+            self.joint_msg.name.append("right_inner_finger_joint")
+            self.joint_msg.position.append(float(grip))
+            self.joint_msg.position.append(float(grip))
+            self.publisher_.publish(self.joint_msg)
+        
         else:
             self.get_logger().info("La posizione desiderata non è raggiungibile.")
         self.csv_file_vr.flush()

@@ -86,6 +86,7 @@ class VRControllerPublisher(Node):
             else:
                 #self.get_logger().warn(f'${state} qui ${result}')
                 trigger_value = 0.0
+                front_trigger_value = 0.0
             
             if pose.bPoseIsValid:
 
