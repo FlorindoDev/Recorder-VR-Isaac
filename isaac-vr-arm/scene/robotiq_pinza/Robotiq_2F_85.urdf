@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="Robotiq_2F_85">
+  <joint name="finger_joint" type="revolute">
+    <origin xyz="0. -0.0306011 0.054904 " rpy="0. 0. -3.1415925"/>
+    <parent link="robotiq_arg2f_base_link"/>
+    <child link="left_outer_knuckle"/>
+    <axis xyz="1. 0. 0."/>
+    <limit lower="0." upper="0.7999999" effort="60000." velocity="2."/>
+  </joint>
+  <joint name="left_inner_finger_joint" type="revolute">
+    <origin xyz="0. 0.0061 0.0471" rpy="0. 0. 0."/>
+    <parent link="left_outer_finger"/>
+    <child link="left_inner_finger"/>
+    <axis xyz="1. 0. 0."/>
+    <limit lower="0." upper="0.8757" effort="60000." velocity="2."/>
+  </joint>
+  <joint name="left_inner_finger_pad_joint" type="fixed">
+    <origin xyz="0. -0.0220203 0.03242 " rpy="0. -1.5707963 0. "/>
+    <parent link="left_inner_finger"/>
+    <child link="left_inner_finger_pad"/>
+  </joint>
+  <joint name="left_inner_knuckle_joint" type="revolute">
+    <origin xyz="0. -0.0127 0.06142" rpy="0. 0. -3.1415925"/>
+    <parent link="robotiq_arg2f_base_link"/>
+    <child link="left_inner_knuckle"/>
+    <axis xyz="1. 0. 0."/>
+    <limit lower="0." upper="0.8757" effort="60000." velocity="2."/>
+  </joint>
+  <joint name="left_outer_finger_joint" type="fixed">
+    <origin xyz="0. 0.0315 -0.0041" rpy="0. 0. 0."/>
+    <parent link="left_outer_knuckle"/>
+    <child link="left_outer_finger"/>
+  </joint>
+  <joint name="right_inner_finger_joint" type="revolute">
+    <origin xyz="0. 0.0061 0.0471" rpy="0. 0. 0."/>
+    <parent link="right_outer_finger"/>
+    <child link="right_inner_finger"/>
+    <axis xyz="1. 0. 0."/>
+    <limit lower="0." upper="0.8757" effort="60000." velocity="2."/>
+  </joint>
+  <joint name="right_inner_finger_pad_joint" type="fixed">
+    <origin xyz="0. -0.0220203 0.03242 " rpy="0. -1.5707963 0. "/>
+    <parent link="right_inner_finger"/>
+    <child link="right_inner_finger_pad"/>
+  </joint>
+  <joint name="right_inner_knuckle_joint" type="revolute">
+    <origin xyz="0. 0.0127 0.06142" rpy="0. 0. 0."/>
+    <parent link="robotiq_arg2f_base_link"/>
+    <child link="right_inner_knuckle"/>
+    <axis xyz="1. 0. 0."/>
+    <limit lower="0." upper="0.8757" effort="60000." velocity="2."/>
+  </joint>
+  <joint name="right_outer_finger_joint" type="fixed">
+    <origin xyz="0. 0.0315 -0.0041" rpy="0. 0. 0."/>
+    <parent link="right_outer_knuckle"/>
+    <child link="right_outer_finger"/>
+  </joint>
+  <joint name="right_outer_knuckle_joint" type="revolute">
+    <origin xyz="0. 0.0306011 0.054904 " rpy="0. 0. 0."/>
+    <parent link="robotiq_arg2f_base_link"/>
+    <child link="right_outer_knuckle"/>
+    <axis xyz="1. 0. 0."/>
+    <limit lower="0." upper="0.81" effort="60000." velocity="2."/>
+  </joint>
+  <joint name="root_joint" type="fixed">
+    <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <parent link="Root"/>
+    <child link="robotiq_arg2f_base_link"/>
+  </joint>
+  <link name="Root"/>
+  <link name="left_inner_finger">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_inner_finger_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_inner_finger_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_inner_finger_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_inner_finger_pad">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 1.5707963 0. "/>
+      <geometry>
+        <box size="0.022 0.00635 0.0375 "/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 1.5707963 0. "/>
+      <geometry>
+        <box size="0.022 0.00635 0.0375 "/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_inner_knuckle">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_inner_knuckle_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_inner_knuckle_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_inner_knuckle_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_outer_finger">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_outer_finger_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_outer_finger_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_outer_finger_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_outer_knuckle">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_outer_knuckle_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_outer_knuckle_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/left_outer_knuckle_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_inner_finger">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_inner_finger_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_inner_finger_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_inner_finger_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_inner_finger_pad">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 1.5707963 0. "/>
+      <geometry>
+        <box size="0.022 0.00635 0.0375 "/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 1.5707963 0. "/>
+      <geometry>
+        <box size="0.022 0.00635 0.0375 "/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_inner_knuckle">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_inner_knuckle_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_inner_knuckle_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_inner_knuckle_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_outer_finger">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_outer_finger_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_outer_finger_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_outer_finger_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_outer_knuckle">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_outer_knuckle_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_outer_knuckle_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/right_outer_knuckle_collisions_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="robotiq_arg2f_base_link">
+    <inertial>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <mass value="0.22652"/>
+      <inertia ixx="0." ixy="0." ixz="0." iyy="0." iyz="0." izz="0."/>
+    </inertial>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/robotiq_arg2f_base_link_visuals_mesh_0.obj" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <visual>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/robotiq_arg2f_base_link_collisions_mesh_0.obj" scale="1. 1. 1."/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+      <geometry>
+        <mesh filename="meshes/robotiq_arg2f_base_link_collisions_mesh_0.obj" scale="1. 1. 1."/>
+      </geometry>
+    </collision>
+  </link>
+</robot>
